@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 import yfinance as yf
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
@@ -25,6 +26,16 @@ sse = SseServerTransport("/messages")
 
 # Create FastAPI app
 app = FastAPI(title="mcp-market-analyst")
+
+# Add CORS middleware to allow connections from Claude Web and other clients
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://claude.ai", "https://*.claude.ai"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 @server.list_tools()

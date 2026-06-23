@@ -36,6 +36,18 @@ Fetches historical global stock market or forex data using the `yfinance` librar
 
 ---
 
+## 🔌 Integrating with Claude Web (claude.ai)
+
+Since this server is hosted as a FastAPI/Docker app on Hugging Face Spaces, it does not use Gradio. Therefore, you cannot connect it using the native "Hugging Face" connector in Claude Web (which expects Gradio). Instead, use the **Custom Connectors** feature in Claude Web:
+
+1. Open **Claude.ai** in your browser and go to your **Settings**.
+2. Navigate to **Connectors** (or developer tools) and select **Add Custom Connector**.
+3. Under the **Remote MCP server URL** field, enter your direct SSE endpoint:
+   `https://lefrandbima-mcp-market-analyst.hf.space/sse`
+4. Save and authorize the connection.
+
+---
+
 ## 🔌 Integrating with Claude Desktop
 
 To connect this remote MCP server to your local Claude Desktop client, follow the steps below:
@@ -46,7 +58,7 @@ The configuration file is typically located at:
 * **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ### 2. Add the MCP Server Configuration
-Insert the following JSON snippet into the file. The URL points to your deployed Hugging Face Space:
+Insert the following JSON snippet into the file:
 
 ```json
 {
@@ -64,7 +76,25 @@ Insert the following JSON snippet into the file. The URL points to your deployed
 ```
 
 ### 3. Restart Claude Desktop
-Close and reopen your Claude Desktop application. A new hammer icon will appear in the input chat area, showing that the `get_crypto_candles` and `get_stock_candles` tools are ready to use.
+Close and reopen your Claude Desktop application. A new hammer icon will appear in the input chat area.
+
+---
+
+## 🔌 Integrating with Cursor / VS Code Extensions (Cline, Roo Code)
+
+You can connect this MCP server to other agents like **Cursor** or VS Code extensions:
+
+### Option A: Remote SSE Connection (Fastest)
+In your agent settings (e.g., Cursor Settings > Features > MCP), add a new MCP server with the following:
+* **Name**: `mcp-market-analyst`
+* **Type**: `sse`
+* **URL**: `https://lefrandbima-mcp-market-analyst.hf.space/sse`
+
+### Option B: Local Stdio Connection (Recommended for Local Dev)
+If running locally, you can run the server using `uvicorn app:app --port 7860` and add this configuration:
+* **Name**: `mcp-market-analyst`
+* **Type**: `command`
+* **Command**: `python /path/to/your/project/app.py` (or use `uvicorn` / `npx`)
 
 ---
 
