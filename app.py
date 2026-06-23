@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import json
 import logging
+import os
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -22,7 +23,13 @@ logger = logging.getLogger("mcp-market-analyst")
 server = Server("mcp-market-analyst")
 
 # Initialize SSE Transport
-sse = SseServerTransport("/messages")
+# Use absolute URL for Hugging Face Spaces to avoid relative path resolution bugs in clients
+space_host = os.getenv("SPACE_HOST")
+if space_host:
+    sse = SseServerTransport(f"https://{space_host}/messages")
+    logger.info(f"Initialized SSE Transport with absolute URL: https://{space_host}/messages")
+else:
+    sse = SseServerTransport("/messages")
 
 # Create FastAPI app
 app = FastAPI(title="mcp-market-analyst")
