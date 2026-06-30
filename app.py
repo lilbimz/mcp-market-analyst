@@ -256,6 +256,47 @@ async def health_check() -> JSONResponse:
         }
     )
 
+@app.get("/.well-known/oauth-authorization-server")
+async def oauth_authorization_server(request: Request) -> JSONResponse:
+    """OAuth 2.0 Authorization Server Metadata per RFC 8414."""
+    base_url = str(request.base_url).rstrip("/")
+    return JSONResponse(
+        content={
+            "issuer": base_url,
+            "authorization_endpoint": f"{base_url}/oauth/authorize",
+            "token_endpoint": f"{base_url}/oauth/token",
+            "grant_types_supported": ["authorization_code", "client_credentials"],
+            "response_types_supported": ["code"],
+            "token_endpoint_auth_methods_supported": ["none"],
+        }
+    )
+
+@app.get("/oauth/authorize")
+async def oauth_authorize(
+    request: Request,
+    client_id: Optional[str] = None,
+    redirect_uri: Optional[str] = None,
+    code: Optional[str] = None,
+    state: Optional[str] = None
+) -> Response:
+    """Authorization endpoint - returns immediate success for anonymous access."""
+    # Redirect back with success for anonymous/public MCP servers
+    if redirect_uri and state:
+        redirect_url = f"{redirect_uri}?code=anonymous&state={state}"
+        return Response(status_code=302, headers={"Location": redirect_url})
+    return Response(status_code=302, headers={"Location": "/"})
+
+@app.post("/oauth/token")
+async def oauth_token_post(request: Request) -> JSONResponse:
+    """Token endpoint - returns anonymous token for public MCP servers."""
+    return JSONResponse(
+        content={
+            "access_token": "anonymous",
+            "token_type": "Bearer",
+            "expires_in": 3600,
+        }
+    )
+
 
 @app.get("/sse")
 async def handle_sse(request: Request) -> Response:
