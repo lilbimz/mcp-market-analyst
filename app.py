@@ -9,6 +9,7 @@ import pandas as pd
 import requests
 import yfinance as yf
 from fastapi import FastAPI, Request
+from fastapi.security import HTTPBearer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from mcp.server import Server
@@ -265,9 +266,24 @@ async def oauth_authorization_server(request: Request) -> JSONResponse:
             "issuer": base_url,
             "authorization_endpoint": f"{base_url}/oauth/authorize",
             "token_endpoint": f"{base_url}/oauth/token",
+            "registration_endpoint": f"{base_url}/oauth/register",
             "grant_types_supported": ["authorization_code", "client_credentials"],
             "response_types_supported": ["code"],
             "token_endpoint_auth_methods_supported": ["none"],
+        }
+    )
+
+@app.post("/oauth/register")
+async def oauth_register(request: Request) -> JSONResponse:
+    """Dynamic Client Registration endpoint per RFC 7591."""
+    # Return a dummy client for anonymous/public MCP servers
+    return JSONResponse(
+        content={
+            "client_id": "anonymous-client",
+            "client_secret": "anonymous-secret",
+            "redirect_uris": [],
+            "grant_types": ["authorization_code", "client_credentials"],
+            "token_endpoint_auth_method": "none",
         }
     )
 
