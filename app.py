@@ -9,7 +9,6 @@ import pandas as pd
 import requests
 import yfinance as yf
 from fastapi import FastAPI, Request
-from fastapi.security import HTTPBearer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from mcp.server import Server
@@ -284,6 +283,18 @@ async def oauth_register(request: Request) -> JSONResponse:
             "redirect_uris": [],
             "grant_types": ["authorization_code", "client_credentials"],
             "token_endpoint_auth_method": "none",
+        }
+    )
+
+@app.options("/oauth/{path:path}")
+async def oauth_options() -> Response:
+    """Handle CORS preflight for OAuth endpoints."""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
         }
     )
 
