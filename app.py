@@ -326,6 +326,7 @@ async def oauth_token_post(request: Request) -> JSONResponse:
 
 
 @app.get("/sse")
+@app.post("/sse")
 async def handle_sse(request: Request) -> Response:
     """Initialize the SSE event stream for MCP client communication."""
     logger.info("New SSE client connection requested")
